@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="utf-8"/>
+    <title>狂神说Java-ES仿京东实战</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+
+
+
+</head>
+
+<body class="pg">
+<div class="page" id="app">
+    <div id="mallPage" class=" mallist tmall- page-not-market ">
+
+        <!-- 头部搜索 -->
+        <div id="header" class=" header-list-app">
+            <div class="headerLayout">
+                <div class="headerCon ">
+                    <!-- Logo-->
+                    <h1 id="mallLogo">
+                        <img th:src="@{/images/jdlogo.png}" alt="">
+                    </h1>
+
+                    <div class="header-extra">
+
+                        <!--搜索-->
+                        <div id="mallSearch" class="mall-search">
+                            <form name="searchTop" class="mallSearch-form clearfix">
+                                <fieldset>
+                                    <legend>天猫搜索</legend>
+                                    <div class="mallSearch-input clearfix">
+                                        <div class="s-combobox" id="s-combobox-685">
+                                            <div class="s-combobox-input-wrap">
+                                                <!--v-model="keyword"  与vue双向绑定-->
+                                                <input v-model="keyword" type="text" autocomplete="off" value="dd" id="mq"
+                                                       class="s-combobox-input" aria-haspopup="true">
+                                            </div>
+                                        </div>
+                                        <button type="submit" @click.prevent="searchKey" id="searchbtn">搜索</button> <!--绑定事件searchKey-->
+                                    </div>
+                                </fieldset>
+                            </form>
+                            <ul class="relKeyTop">
+                                <li><a>狂神说Java</a></li>
+                                <li><a>狂神说前端</a></li>
+                                <li><a>狂神说Linux</a></li>
+                                <li><a>狂神说大数据</a></li>
+                                <li><a>狂神聊理财</a></li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 商品详情页面 -->
+        <div id="content">
+            <div class="main">
+                <!-- 品牌分类 -->
+                <form class="navAttrsForm">
+                    <div class="attrs j_NavAttrs" style="display:block">
+                        <div class="brandAttr j_nav_brand">
+                            <div class="j_Brand attr">
+                                <div class="attrKey">
+                                    品牌
+                                </div>
+                                <div class="attrValues">
+                                    <ul class="av-collapse row-2">
+                                        <li><a href="#"> 狂神说 </a></li>
+                                        <li><a href="#"> Java </a></li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+
+                <!-- 排序规则 -->
+                <div class="filter clearfix">
+                    <a class="fSort fSort-cur">综合<i class="f-ico-arrow-d"></i></a>
+                    <a class="fSort">人气<i class="f-ico-arrow-d"></i></a>
+                    <a class="fSort">新品<i class="f-ico-arrow-d"></i></a>
+                    <a class="fSort">销量<i class="f-ico-arrow-d"></i></a>
+                    <a class="fSort">价格<i class="f-ico-triangle-mt"></i><i class="f-ico-triangle-mb"></i></a>
+                </div>
+
+                <!-- 商品详情 -->
+                <div class="view grid-nosku">
+
+                    <div class="product" v-for="result in results">
+<!--      vue绑定事件响应的数据给了当前的results。这里把results在商品详情处遍历:v-for="result in results"-->
+                        <div class="product-iWrap">
+                            <!--商品封面-->
+                            <div class="productImg-wrap">
+                                <a class="productImg">
+                                    <img :src="result.img">  <!--用：绑定-->
+                                </a>
+                            </div>
+                            <!--价格-->
+                            <p class="productPrice">
+                                <em>{{result.price}}</em>
+                            </p>
+                            <!--标题-->
+                            <p class="productTitle">
+                                <a v-html="result.title"></a>  <!--为了使用高亮，这里不再写{{result.title}}，而是v-html-->
+.                            </p>
+                            <!-- 店铺名 -->
+                            <div class="productShop">
+                                <span>店铺： 狂神说Java </span>
+                            </div>
+                            <!-- 成交信息 -->
+                            <p class="productStatus">
+                                <span>月成交<em>999笔</em></span>
+                                <span>评价 <a>3</a></span>
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<!--前端使用vue,完成前后端分离-->
+<script th:src="@{/js/axios.min.js}"></script>
+<script th:src="@{/js/vue.min.js}"></script>
+
+
+<script>
+    new Vue({
+        el: '#app',  //vue三部曲：1.首先有一个绑定的元素,这里面的所有数据以后就可以渲染到了
+        data: {  //vue三部曲：2.传递一些数据。传递的数据至少包含两个：要搜索的关键字keyword，展示的结果
+            keyword: '',
+            results: []
+        },
+        methods: { //vue三部曲：3.搜索，那要有绑定事件： 先去上面v-model="keyword"双向绑定，保证数据。其次搜索那里绑定一个事件：@click.prevent=""
+            searchKey(){
+                var keyword = this.keyword;
+                console.log(keyword);//能正常输出，说明前端要搜什么，就能直接搜了。那么下面直接对接后端的接口（前端随机搜的keyword，直接对接后端的接口）即可。
+                //对接后端接口：
+                axios.get('searchHigh/'+keyword+"/1/20").then(response=>{//仔细看：search/'+keyword+"/1/10不就是Controller 的接口嘛。then(response=>：获取响应值
+                    console.log(response);
+                    this.results = response.data;//绑定数据:把响应结果赋值给当前的results。然后results就可以自由遍历（去商品详情部分）啥的了:v-for="result in results"
+                });
+            }
+
+        }
+    })
+
+</script>
+
+</body>
+</html>
